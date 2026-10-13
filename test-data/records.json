@@ -1,0 +1,8 @@
+[
+  { "id": "r001", "name": "Alpha Widget",  "category": "hardware", "value": 19.99,  "tags": ["small", "metal"],        "createdAt": "2025-01-05T10:00:00.000Z" },
+  { "id": "r002", "name": "Beta Gadget",   "category": "hardware", "value": 149.5,  "tags": ["large"],                 "createdAt": "2025-01-12T09:30:00.000Z" },
+  { "id": "r003", "name": "Gamma Guide",   "category": "books",    "value": 12,     "tags": ["paper", "reference"],    "createdAt": "2025-02-01T14:15:00.000Z" },
+  { "id": "r004", "name": "Delta Course",  "category": "courses",  "value": 300,    "tags": ["online", "video"],       "createdAt": "2025-02-20T08:00:00.000Z" },
+  { "id": "r005", "name": "Épsilon Café",  "category": "food",     "value": 4.25,   "tags": ["unicode", "drink"],      "createdAt": "2025-03-03T07:45:00.000Z" },
+  { "id": "r006", "name": "Zeta Notes",    "category": "books",    "value": 0,      "tags": [],                        "createdAt": "2025-03-15T16:20:00.000Z" }
+]
