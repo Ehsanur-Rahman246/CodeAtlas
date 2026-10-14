@@ -5,6 +5,7 @@
 // ---------------------------------------------------------------------------
 
 import { AppError, InputClosedError } from "./lib/errors.js";
+import { runRecordsMenu } from './modules/records/index.js';
 
 export const EXIT_KEY = "0";
 
@@ -18,7 +19,7 @@ const comingSoon =
 
 // The dispatch table: key -> label + handler. Exit is handled by the app loop.
 export const MENU_ITEMS = Object.freeze([
-  { key: "1", label: "Manage Records", run: comingSoon("Manage Records") },
+  { key: "1", label: "Manage Records", run: runRecordsMenu },
   { key: "2", label: "Analyze Data", run: comingSoon("Analyze Data") },
   {
     key: "3",

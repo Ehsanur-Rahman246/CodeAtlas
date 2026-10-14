@@ -45,7 +45,7 @@ function cleanValue(value, issues) {
   // Number.isFinite does NOT coerce, so "12", null and undefined all fail,
   // as do NaN, Infinity and -Infinity. The global isFinite("12") would say true.
   if (!Number.isFinite(value)) {
-    issues.push("value must be an array of strings");
+    issues.push("value must be a finite number");
     return undefined;
   }
   return value;

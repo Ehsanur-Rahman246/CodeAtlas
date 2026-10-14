@@ -12,9 +12,11 @@ import {
   InputClosedError,
   ValidationError,
 } from "../../src/lib/errors.js";
+import { createStore } from "../../src/model/store.js";
+import { reportError } from "../../src/cli/output.js";
 
 // Runs the whole app against fake streams: no real terminal needed.
-async function runWith(lines) {
+async function runWith(lines, store) {
   const input = new PassThrough();
   const output = new PassThrough();
   let text = "";
@@ -22,7 +24,7 @@ async function runWith(lines) {
     text += chunk;
   });
 
-  const finished = runApp({ input, output }); // starts reading immediately
+  const finished = runApp({ input, output, store }); // undefined store -> default empty store
   for (const line of lines) input.write(`${line}\n`);
   input.end(); // simulates the end of input
   const code = await finished;
@@ -81,8 +83,8 @@ describe("app loop", () => {
   });
 
   it("returns to the menu after an option runs", opts, async () => {
-    const { text } = await runWith(["1", "0"]);
-    assert.match(text, /Manage Records is not implemented yet/);
+    const { text } = await runWith(["2", "0"]);
+    assert.match(text, /Analyze Data is not implemented yet/);
     assert.equal(text.split("Main menu").length - 1, 2); // shown before and after
   });
 
@@ -198,5 +200,146 @@ describe("output color", () => {
     }).error("x");
     assert.match(colored.join(""), /\x1b\[/);
     assert.equal(plain.join(""), "Error: x\n");
+  });
+});
+
+// Two seeded records for the workflow tests below.
+const seed = () =>
+  createStore([
+    {
+      id: "r1",
+      name: "Apple",
+      category: "Fruit",
+      value: 10,
+      tags: ["fresh"],
+      createdAt: "2026-01-01T00:00:00Z",
+    },
+    {
+      id: "r2",
+      name: "Carrot",
+      category: "Veg",
+      value: 2,
+      tags: [],
+      createdAt: "2026-01-02T00:00:00Z",
+    },
+  ]);
+
+describe("records menu workflows", () => {
+  it("creates a record with an automatic id", opts, async () => {
+    const store = createStore();
+    // main 1 -> create (1) -> id, name, category, value, tags -> back (0) -> exit (0)
+    const { text } = await runWith(
+      ["1", "1", "", "Apple", "Fruit", "5", "red, fresh", "0", "0"],
+      store,
+    );
+    assert.match(text, /Created record rec-001/);
+    assert.deepEqual(store.get("rec-001").tags, ["red", "fresh"]);
+    assert.equal(store.get("rec-001").value, 5);
+  });
+
+  it(
+    "shows every validation problem and stays in the submenu",
+    opts,
+    async () => {
+      const store = createStore();
+      const { code, text } = await runWith(
+        ["1", "1", "", "", "Fruit", "abc", "", "0", "0"],
+        store,
+      );
+      assert.equal(code, 0);
+      assert.match(text, /name must not be empty/);
+      assert.match(text, /value must be a finite number/);
+      assert.equal(store.count(), 0);
+      assert.equal(text.split("Manage records").length - 1, 2); // submenu shown again
+    },
+  );
+
+  it("lists records as a table", opts, async () => {
+    const { text } = await runWith(["1", "2", "", "0", "0"], seed());
+    assert.match(text, /Apple/);
+    assert.match(text, /10\.00/);
+    assert.match(text, /2 record\(s\)/);
+  });
+
+  it("shows an empty state for no records", opts, async () => {
+    const { text } = await runWith(["1", "2", "", "0", "0"]);
+    assert.match(text, /No records found\./);
+  });
+
+  it("lists sorted when asked", opts, async () => {
+    const { text } = await runWith(
+      ["1", "2", "value", "desc", "0", "0"],
+      seed(),
+    );
+    assert.ok(text.indexOf("Apple") < text.indexOf("Carrot"));
+  });
+
+  it(
+    "views a record, and reports a missing one without leaving",
+    opts,
+    async () => {
+      const { text } = await runWith(
+        ["1", "3", "r1", "3", "nope", "0", "0"],
+        seed(),
+      );
+      assert.match(text, /Category: Fruit/);
+      assert.match(text, /No record with id "nope"/);
+    },
+  );
+
+  it("updates only the fields that were typed", opts, async () => {
+    const store = seed();
+    await runWith(["1", "4", "r1", "", "", "12", "", "0", "0"], store);
+    assert.equal(store.get("r1").value, 12);
+    assert.equal(store.get("r1").name, "Apple");
+  });
+
+  it(
+    "deletes after confirmation and keeps the record when declined",
+    opts,
+    async () => {
+      const declined = seed();
+      await runWith(["1", "5", "r1", "n", "0", "0"], declined);
+      assert.equal(declined.count(), 2);
+
+      const confirmed = seed();
+      await runWith(["1", "5", "r1", "y", "0", "0"], confirmed);
+      assert.equal(confirmed.count(), 1);
+      assert.equal(confirmed.get("r1"), undefined);
+    },
+  );
+
+  it("searches by tag", opts, async () => {
+    const { text } = await runWith(["1", "6", "fresh", "0", "0"], seed());
+    assert.match(text, /Apple/);
+    assert.doesNotMatch(text, /Carrot/);
+  });
+
+  it("filters by value range", opts, async () => {
+    const { text } = await runWith(["1", "7", "", "5", "", "0", "0"], seed());
+    assert.match(text, /Apple/);
+    assert.doesNotMatch(text, /Carrot/);
+  });
+});
+
+describe("reportError", () => {
+  it("prints each validation issue and returns true", () => {
+    const lines = [];
+    const out = createOutput({
+      stream: { write: (c) => lines.push(c) },
+      color: false,
+    });
+    assert.equal(
+      reportError(out, new ValidationError(["a is bad", "b is bad"])),
+      true,
+    );
+    assert.match(lines.join(""), /a is bad/);
+    assert.match(lines.join(""), /b is bad/);
+  });
+
+  it("returns false for bugs and for closed input", () => {
+    const out = createOutput({ stream: { write() {} }, color: false });
+    assert.equal(reportError(out, new TypeError("bug")), false);
+    assert.equal(reportError(out, new InputClosedError()), false);
   });
 });

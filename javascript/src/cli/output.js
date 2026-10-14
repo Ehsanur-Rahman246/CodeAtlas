@@ -3,6 +3,8 @@
 // formatting stays in one place. ANSI escape codes live ONLY in this file.
 // ---------------------------------------------------------------------------
 
+import { AppError, InputClosedError, ValidationError } from "../lib/errors.js";
+
 // ANSI escape sequences: "\x1b[" starts a code, the number picks the style.
 const CODES = {
   reset: "\x1b[0m",
@@ -52,4 +54,22 @@ export function createOutput({
     warn: (text) => line(paint("yellow", `Warning: ${text}`)),
     error: (text) => line(paint("red", `Error: ${text}`)),
   });
+}
+
+/**
+ * Shows an expected error to the user.
+ * @returns {boolean} true if it was shown; false means the caller should rethrow
+ *          (a real bug, or the input closing, which must end the session).
+ */
+export function reportError(out, error) {
+  if (error instanceof InputClosedError || !(error instanceof AppError))
+    return false;
+
+  if (error instanceof ValidationError) {
+    out.error("The data was not valid:");
+    for (const issue of error.issues) out.line(`  - ${issue}`);
+  } else {
+    out.error(error.message);
+  }
+  return true;
 }
