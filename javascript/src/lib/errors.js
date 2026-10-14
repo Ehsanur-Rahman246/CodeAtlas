@@ -40,3 +40,11 @@ export class NotFoundError extends AppError {
     this.id = id;
   }
 }
+
+// Thrown when the input stream ends: Ctrl+D, Ctrl+C, or piped input running out.
+// The app treats it as "the user is done", not as a failure.
+export class InputClosedError extends AppError {
+  constructor(options) {
+    super('Input stream closed', options);
+  }
+}
