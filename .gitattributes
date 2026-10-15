@@ -1,8 +1,16 @@
-* text=auto
-*.js text eol=lf
-*.mjs text eol=lf
-*.cjs text eol=lf
-*.json text eol=lf
-*.md text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
+# Normalize all text files to LF in the repo AND in your working folder.
+# This removes the "LF will be replaced by CRLF" warning.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to run reliably
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files: never convert line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
