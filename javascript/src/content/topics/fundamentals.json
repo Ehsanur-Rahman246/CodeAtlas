@@ -1,0 +1,151 @@
+[
+  {
+    "id": "js-variables-const",
+    "title": "const declarations",
+    "category": "Fundamentals",
+    "difficulty": "beginner",
+    "sourceType": "language",
+    "keywords": ["const", "variables", "binding", "constant", "immutability"],
+    "summary": "Declares a block-scoped binding that cannot be reassigned.",
+    "explanation": "A const declaration must be initialized where it is declared, and the name can never be pointed at a different value afterward. It is block-scoped. const protects the binding, not the value: an object or array declared with const can still have its contents changed.",
+    "syntax": "const name = value;",
+    "examples": [
+      {
+        "title": "Declare a constant",
+        "code": "const fruit = 'Apple';\nconsole.log(fruit);",
+        "expectedOutput": "Apple",
+        "explanation": "The binding is declared once and its value is printed."
+      },
+      {
+        "title": "Reassignment throws",
+        "code": "const limit = 10;\ntry {\n  limit = 20;\n} catch (error) {\n  console.log(error.name);\n}",
+        "expectedOutput": "TypeError",
+        "explanation": "Assigning to a const binding throws a TypeError, which the catch block reports."
+      },
+      {
+        "title": "Contents can still change",
+        "code": "const user = { name: 'Ada' };\nuser.name = 'Grace';\nconsole.log(user.name);",
+        "expectedOutput": "Grace",
+        "explanation": "The binding still points at the same object; only a property inside it changed."
+      }
+    ],
+    "commonMistakes": [
+      "Trying to reassign a const binding.",
+      "Assuming const makes an object or array deeply immutable.",
+      "Declaring a const without an initial value, which is a SyntaxError."
+    ],
+    "relatedTopics": ["js-variables-let", "js-values-primitive-vs-reference"],
+    "references": [],
+    "status": "draft"
+  },
+  {
+    "id": "js-variables-let",
+    "title": "let declarations",
+    "category": "Fundamentals",
+    "difficulty": "beginner",
+    "sourceType": "language",
+    "keywords": ["let", "variables", "block scope", "reassignment"],
+    "summary": "Declares a block-scoped variable that can be reassigned.",
+    "explanation": "Use let for values that change over time, such as counters. A let variable exists only inside the block where it is declared, and a block can declare its own variable with the same name as an outer one without affecting it. Reading a let variable before its declaration line runs throws a ReferenceError.",
+    "syntax": "let name = value;",
+    "examples": [
+      {
+        "title": "Reassign a variable",
+        "code": "let count = 1;\ncount = count + 1;\nconsole.log(count);",
+        "expectedOutput": "2",
+        "explanation": "A let variable can be given a new value after it is declared."
+      },
+      {
+        "title": "Block scope",
+        "code": "let x = 'outer';\n{\n  let x = 'inner';\n  console.log(x);\n}\nconsole.log(x);",
+        "expectedOutput": "inner\nouter",
+        "explanation": "The inner x only exists inside the braces, so the outer x is untouched."
+      }
+    ],
+    "commonMistakes": [
+      "Declaring the same name twice with let in the same scope, which is a SyntaxError.",
+      "Using a let variable before its declaration, which throws a ReferenceError.",
+      "Using let for values that never change, where const communicates intent better."
+    ],
+    "relatedTopics": ["js-variables-const", "js-values-primitive-vs-reference"],
+    "references": [],
+    "status": "draft"
+  },
+  {
+    "id": "js-values-primitive-vs-reference",
+    "title": "Primitive and reference values",
+    "category": "Fundamentals",
+    "difficulty": "beginner",
+    "sourceType": "language",
+    "keywords": ["primitive", "reference", "object", "copy", "equality", "value"],
+    "summary": "Primitives are copied by value; objects are shared by reference.",
+    "explanation": "Numbers, strings, booleans and other primitives are copied when assigned, so each variable holds its own value. Objects, arrays and functions are stored by reference: assigning one to another variable makes both names point at the same object. Comparing objects with === asks whether they are the same object, not whether they look alike.",
+    "syntax": "let copy = original;",
+    "examples": [
+      {
+        "title": "Primitives are copied",
+        "code": "let a = 5;\nlet b = a;\nb = 10;\nconsole.log(a, b);",
+        "expectedOutput": "5 10",
+        "explanation": "Changing b does not affect a because b received its own copy of the number."
+      },
+      {
+        "title": "Objects are shared",
+        "code": "const first = { n: 1 };\nconst second = first;\nsecond.n = 2;\nconsole.log(first.n);",
+        "expectedOutput": "2",
+        "explanation": "first and second point at the same object, so a change through one is visible through the other."
+      },
+      {
+        "title": "Equality compares identity",
+        "code": "const p = { v: 1 };\nconst q = { v: 1 };\nconsole.log(p === q);\nconsole.log(p === p);",
+        "expectedOutput": "false\ntrue",
+        "explanation": "p and q have the same contents but are two separate objects."
+      }
+    ],
+    "commonMistakes": [
+      "Expecting assignment to copy an object, then being surprised when the original changes.",
+      "Comparing two objects or arrays with === and expecting a content comparison."
+    ],
+    "relatedTopics": ["js-variables-const", "js-variables-let"],
+    "references": [],
+    "status": "draft"
+  },
+  {
+    "id": "js-operators-basic",
+    "title": "Basic operators",
+    "category": "Fundamentals",
+    "difficulty": "beginner",
+    "sourceType": "language",
+    "keywords": ["operators", "arithmetic", "comparison", "equality", "coercion", "+", "==="],
+    "summary": "Arithmetic and comparison operators, and why === is preferred over ==.",
+    "explanation": "The arithmetic operators are +, -, *, /, % (remainder) and ** (exponent). === compares value and type with no conversion, while == converts types first, which can produce surprising results. The + operator also joins strings, so mixing a string and a number turns the number into text, whereas - always converts to numbers.",
+    "syntax": "a + b, a % b, a ** b, a === b",
+    "examples": [
+      {
+        "title": "Arithmetic",
+        "code": "console.log(7 + 3);\nconsole.log(7 % 3);\nconsole.log(2 ** 3);",
+        "expectedOutput": "10\n1\n8",
+        "explanation": "Addition, remainder and exponent."
+      },
+      {
+        "title": "Strict vs loose equality",
+        "code": "console.log(5 === '5');\nconsole.log(5 == '5');",
+        "expectedOutput": "false\ntrue",
+        "explanation": "=== sees different types and says false; == converts the string to a number first."
+      },
+      {
+        "title": "Plus with a string",
+        "code": "console.log('5' + 3);\nconsole.log('5' - 3);",
+        "expectedOutput": "53\n2",
+        "explanation": "+ joins the text '5' and '3'; - converts '5' to the number 5 and subtracts."
+      }
+    ],
+    "commonMistakes": [
+      "Using == and being surprised by type conversion; prefer ===.",
+      "Adding a string and a number and getting joined text instead of a sum.",
+      "Confusing % (remainder) with a percentage."
+    ],
+    "relatedTopics": ["js-values-primitive-vs-reference"],
+    "references": [],
+    "status": "draft"
+  }
+]

@@ -1,7 +1,9 @@
+import { join } from "node:path";
 import { getBanner } from "./cli/banner.js";
 import { color, print, printError } from "./cli/output.js";
 import { ask, closePrompt } from "./cli/prompt.js";
 import { MAIN_MENU, renderMenu, parseChoice } from "./menu.js";
+import { loadTopicFile, TOPICS_DIR } from "./guide/catalog.js";
 
 // Runs the main loop until the user exits or input ends.
 export async function run() {
@@ -31,9 +33,20 @@ export async function run() {
 
       if (choice.id === "exit") break;
 
-      // Placeholder until the guide is built in a later phase.
+      // Temporary: load one topic file and list its titles to prove loading works.
       if (choice.id === "guide") {
-        print("The Language Guide is coming in a later phase.");
+        try {
+          const topics = await loadTopicFile(
+            join(TOPICS_DIR, "fundamentals.json"),
+          );
+          print(`Loaded ${topics.length} topics:`);
+          for (const topic of topics) {
+            print(`  - ${topic.title}`);
+          }
+        } catch (error) {
+          // A load failure should explain itself, not crash the app.
+          printError(error.message);
+        }
       }
     }
   } finally {
