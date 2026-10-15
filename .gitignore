@@ -1,39 +1,35 @@
-# Environment variables and secrets
-.env
-.env.*
-!.env.example
+# --- Dependencies ---
+# JavaScript / TypeScript (keep package-lock.json committed)
+node_modules/
 
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
+# --- Build output (future editions) ---
+dist/
+build/
+out/
+target/          # Rust
+bin/             # C#, Go
+obj/             # C#
+*.class          # Java
+*.o              # C / C++
+*.exe
 
-# Operating system files
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# Editors and IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.orig
-
-# Python
+# --- Python (future edition) ---
 __pycache__/
-*.py[cod]
+*.pyc
 .venv/
 venv/
 
-# JavaScript dependencies
-node_modules/
-
-# Common generated reports
+# --- Logs and test output ---
+*.log
+npm-debug.log*
 coverage/
+
+# --- Secrets and local config ---
+.env
+.env.*
+
+# --- Editor and OS files ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
