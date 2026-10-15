@@ -30,6 +30,6 @@ export function getBanner({ color = true } = {}) {
     paint(YELLOW, art),
     `  ${paint(BG_YELLOW + BLACK, " JS ")} ${paint(WHITE, "CodeAtlas")} ${paint(GRAY, "/ JavaScript Edition")}`,
     `  ${paint(YELLOW, "Explore languages. Discover possibilities.")}`,
-    `  ${paint(GRAY, "Mini Data Lab · v1.0.0")}`,
+    `  ${paint(GRAY, "Mini Language Lab · v1.0.0")}`,
   ].join("\n");
 }
