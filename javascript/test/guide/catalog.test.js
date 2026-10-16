@@ -46,3 +46,15 @@ test("rejects when the JSON is not an array", async () => {
     await assert.rejects(loadTopicFile(filePath), /must contain an array/);
   });
 });
+
+test("rejects a file whose topics fail validation", async () => {
+  await withTempFile(JSON.stringify([{ id: "x" }]), async (filePath) => {
+    await assert.rejects(loadTopicFile(filePath), /Invalid topics in/);
+  });
+});
+
+test("rejects an empty topic array", async () => {
+  await withTempFile("[]", async (filePath) => {
+    await assert.rejects(loadTopicFile(filePath), /empty/);
+  });
+});
